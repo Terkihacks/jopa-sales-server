@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  // output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -14,4 +14,62 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User Model
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(RECORD_KEEPER)
+  createdAt DateTime  @default(now())
+  sales     Sale[]
+  reports   Report[]   
+}
+
+model Product {
+  id        Int       @id @default(autoincrement())
+  name      String
+  code      String    @unique
+  category  String
+  price     Float
+  createdAt DateTime  @default(now())
+  sales     Sale[]
+}
+
+model Sale {
+  id         Int       @id @default(autoincrement())
+  product    Product   @relation(fields: [productId], references: [id])
+  productId  Int
+  quantity   Int
+  total      Float
+  profit     Float
+  user       User      @relation(fields: [userId], references: [id])
+  userId     Int
+  createdAt  DateTime  @default(now())
+}
+
+model Report {
+  id            Int       @id @default(autoincrement())
+  title         String
+  reportType    ReportType
+  totalSales    Float      @default(0)
+  totalProfit   Float      @default(0)
+  startDate     DateTime
+  endDate       DateTime
+  generatedBy   User       @relation(fields: [generatedById], references: [id])
+  generatedById Int
+  createdAt     DateTime   @default(now())
+  summary       String?    
+}
+
+enum Role {
+  ADMIN
+  RECORD_KEEPER
+}
+
+enum ReportType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  CUSTOM
+}
