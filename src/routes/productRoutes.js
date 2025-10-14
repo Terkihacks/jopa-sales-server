@@ -19,8 +19,7 @@ router.post('/create-product', async (req, res) => {
 
 
 // Get all products
-
-router.get('/products', async (req, res) => {
+router.get('/get-products', async (req, res) => {
   try {
     const products = await prisma.product.findMany({
       include: { sales: true },
@@ -32,6 +31,20 @@ router.get('/products', async (req, res) => {
   }
 });
 
+//Get product by ID
+router.get('/get-product/:id', async (req, res) => {
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id: parseInt(req.params.id) },
+      include: { sales: true }
+    });
+    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+    res.json({ success: true, product });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // Update a product
 router.put('/update-product/:id', async (req, res) => {
   const { id } = req.params;
@@ -39,7 +52,7 @@ router.put('/update-product/:id', async (req, res) => {
 
   try {
     const updatedProduct = await prisma.product.update({
-      where: { id: parseInt(id) },
+      where: { id: parseInt(req.params.id) },
       data: { name, code, category, price },
     });
     res.status(200).json(updatedProduct);
@@ -52,7 +65,6 @@ router.put('/update-product/:id', async (req, res) => {
 // Delete a product
 router.delete('/delete-product/:id', async (req, res) => {
   const { id } = req.params;
-
   try {
     await prisma.product.delete({ where: { id: parseInt(id) } });
     res.status(200).json({ message: 'Product deleted successfully' });
