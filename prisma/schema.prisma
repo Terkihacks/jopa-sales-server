@@ -32,6 +32,7 @@ model Product {
   code      String    @unique
   category  String
   price     Float
+  quantity  Int        @default(0) 
   createdAt DateTime  @default(now())
   sales     Sale[]
 }

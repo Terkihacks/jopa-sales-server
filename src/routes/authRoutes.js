@@ -1,8 +1,8 @@
-import express from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
-import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware';
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { PrismaClient } = require('@prisma/client');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -55,7 +55,7 @@ router.post('/regiser-record-keeper', authenticateToken, authorizeRoles('ADMIN')
     CREATE — Create an Admin (for initial setup)
   ===========================================
 */ 
-router.post('/create-admin', verifyToken, authorizeRoles('ADMIN'), async (req, res) => {
+router.post('/create-admin', authenticateToken, authorizeRoles('ADMIN'), async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
@@ -90,12 +90,12 @@ router.post('/create-admin', verifyToken, authorizeRoles('ADMIN'), async (req, r
    ADMIN LOGIN
    Endpoint: POST /admin/login
 =========================================== */
-router.post('/admin/login', async (req, res) => {
+router.post('/admin-login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // 1️⃣ Check if user exists
-    const admin = await prisma.recordKeeper.findUnique({
+    // Check if admin exists
+    const admin = await prisma.user.findUnique({
       where: { email },
     });
 
@@ -103,25 +103,25 @@ router.post('/admin/login', async (req, res) => {
       return res.status(404).json({ message: 'Admin not found' });
     }
 
-    // 2️⃣ Ensure role is ADMIN
+    // Ensure role is ADMIN
     if (admin.role !== 'ADMIN') {
       return res.status(403).json({ message: 'Access denied. Not an admin.' });
     }
 
-    // 3️⃣ Verify password
+    // Verify password
     const isPasswordValid = bcrypt.compareSync(password, admin.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // 4️⃣ Generate JWT
+    //Generate JWT
     const token = jwt.sign(
       { adminId: admin.id, role: admin.role },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
 
-    // 5️⃣ Respond with token and profile info
+    //Respond with token and profile info
     res.status(200).json({
       message: 'Admin login successful',
       token,
@@ -137,6 +137,7 @@ router.post('/admin/login', async (req, res) => {
     res.status(503).json({ message: 'Internal server error' });
   }
 });
+
 
 
 
@@ -321,4 +322,4 @@ router.delete('/:id', authenticateToken, authorizeRoles('ADMIN'), async (req, re
   }
 });
 
-export default router;
+module.exports = router;

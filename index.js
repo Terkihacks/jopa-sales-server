@@ -5,13 +5,17 @@ const cors = require('cors');
 const productRoutes = require('./src/routes/productRoutes');
 const salesRoutes = require('./src/routes/salesRoutes');
 const reportRoutes = require('./src/routes/reportRoutes');
+const adminDashboard = require('./src/routes/adminDashboard.js')
+const authRoutes = require('./src/routes/authRoutes.js');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use('v1/api/products', productRoutes);
-app.use('v1/api/sales', salesRoutes);
-app.use('v1/api/reports', reportRoutes);
+app.use('/v1/api/products', productRoutes);
+app.use('/v1/api/auth', authRoutes);
+app.use('/v1/api/sales', salesRoutes);
+app.use('/v1/api/reports', reportRoutes);
+app.use('/v1/api', adminDashboard);
 
 
 // Server
@@ -21,3 +25,10 @@ app.listen(PORT, () => {
   // Test DB connection
   require('./src/config/config.js');
 });
+
+
+/* 
+http://localhost:4000/v1/api/admin-dashboard
+http://localhost:4000/v1/api/products/get-products
+http://localhost:4000/v1/api/auth/admin-login
+*/

@@ -23,10 +23,11 @@ router.post('/create-sale', async (req, res) => {
 });
 
 // Get all sales
-router.get('/sales', async (req, res) => {
+router.get('/get-sales', async (req, res) => {
   try {
     const sales = await prisma.sale.findMany({
       include: { product: true, user: true },
+      orderBy: { createdAt: 'desc' } 
     });
     res.status(200).json(sales);
   } catch (error) {
@@ -60,6 +61,19 @@ router.put('/update-sale/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to update sale' });
   }
 });
+
+// Get a sale by product ID
+router.get('/get-sale-by-product/:productId', async (req, res) => {
+   try {
+    const sales = await prisma.sale.findMany({
+      where: { productId: parseInt(req.params.productId) },
+      include: { product: true }
+    });
+    res.json({ success: true, sales });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+})
 
 // Delete a sale
 router.delete('/delete-sale/:id', async (req, res) => {

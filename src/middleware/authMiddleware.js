@@ -1,12 +1,12 @@
-import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
+const jwt = require('jsonwebtoken');
+const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
 // Verify JWT and attach user info to req.user
-export const authenticateToken = async (req, res, next) => {
+const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Format: Bearer <token>
+  const token = authHeader && authHeader.split(' ')[1]; 
 
   if (!token) return res.status(401).json({ message: 'Access token missing' });
 
@@ -29,7 +29,7 @@ export const authenticateToken = async (req, res, next) => {
 };
 
 // Restrict access by role
-export const authorizeRoles = (...allowedRoles) => {
+const authorizeRoles = (...allowedRoles) => {
   return (req, res, next) => {
     if (!req.user)
       return res.status(401).json({ message: 'Not authenticated' });
@@ -40,3 +40,5 @@ export const authorizeRoles = (...allowedRoles) => {
     next();
   };
 };
+
+module.exports = { authenticateToken, authorizeRoles };
