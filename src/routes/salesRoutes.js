@@ -1,23 +1,53 @@
 const express = require('express');
 const prisma = require('../prismaClient');
 const router = express.Router();
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 // Create a sale
-router.post('/create-sale', async (req, res) => {
-  const { productId, quantity, profit, userId } = req.body;
-
+router.post('/create-sale', authenticateToken, authorizeRoles('ADMIN'), async (req, res) => {
   try {
-    const product = await prisma.product.findUnique({ where: { id: productId } });
-    if (!product) return res.status(404).json({ error: 'Product not found' });
+    const { productId, quantity, userId } = req.body;
 
-    const total = product.price * quantity;
+    // Ensure numeric inputs
+    const parsedProductId = parseInt(productId);
+    const parsedQuantity = parseInt(quantity);
+    const parsedUserId = parseInt(userId);
 
-    const sale = await prisma.sale.create({
-      data: { productId, quantity, total, profit, userId },
+    if (isNaN(parsedProductId) || isNaN(parsedQuantity) || isNaN(parsedUserId)) {
+      return res.status(400).json({ error: 'Invalid input types' });
+    }
+
+    // --- Check if product exists ---
+    const product = await prisma.product.findUnique({
+      where: { id: parsedProductId },
     });
-    res.status(201).json(sale);
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // --- Calculate total & profit ---
+    const total = product.price * parsedQuantity;
+    const profit = total * 0.2; 
+
+    // --- Create sale ---
+    const sale = await prisma.sale.create({
+      data: {
+        productId: parsedProductId,
+        quantity: parsedQuantity,
+        total,
+        profit,
+        userId: parsedUserId,
+      },
+    });
+
+    res.status(201).json({
+      message: 'Sale recorded successfully',
+      sale,
+    });
+
   } catch (error) {
-    console.log(error);
+    console.error('Error creating sale:', error);
     res.status(500).json({ error: 'Failed to record sale' });
   }
 });
