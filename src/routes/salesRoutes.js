@@ -4,7 +4,7 @@ const router = express.Router();
 const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 // Create a sale
-router.post('/create-sale', authenticateToken, authorizeRoles('ADMIN'), async (req, res) => {
+router.post('/create-sale', authenticateToken, authorizeRoles('ADMIN','RECORD_KEEPER'), async (req, res) => {
   try {
     const { productId, quantity, userId } = req.body;
 
@@ -65,6 +65,32 @@ router.get('/get-sales', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch sales' });
   }
 });
+
+// Get sale by a specific user role
+router.get('/get-sales-by-user',authenticateToken,authorizeRoles('ADMIN', 'RECORD_KEEPER'),async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const sales = await prisma.sale.findMany({
+        where: { userId },
+        include: { 
+          product: true,
+          user: {
+            select: {
+              name: true,
+              role: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      res.status(200).json(sales);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to fetch sales for user' });
+    }
+  }
+);
 
 // Update a sale
 router.put('/update-sale/:id', async (req, res) => {

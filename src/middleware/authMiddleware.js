@@ -13,8 +13,11 @@ const authenticateToken = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    const userId = decoded.id || decoded.userId || decoded.adminId || decoded.recordKId;
+
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId || decoded.adminId },
+      where: { id: userId },
       select: { id: true, name: true, email: true, role: true },
     });
 
@@ -23,7 +26,7 @@ const authenticateToken = async (req, res, next) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    console.log(`Authenticated User: ${user.name} (${user.role})`);
+    // console.log(`Authenticated User: ${user.name} (${user.role})`);
     req.user = user;
     next();
   } catch (err) {
@@ -32,7 +35,7 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-// ✅ Restrict access by role
+// Restrict access by role
 const authorizeRoles = (...allowedRoles) => {
   return (req, res, next) => {
     if (!req.user) {

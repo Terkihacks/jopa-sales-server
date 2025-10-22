@@ -1,10 +1,14 @@
 {
   "name": "jopa-sales-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "Express + Prisma + PostgreSQL backend for Jopa Sales",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
     "test": "jest",
+    "migrate": "npx prisma migrate deploy",
+    "postinstall": "npx prisma generate",
     "seed": "node prisma/seed.js",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
@@ -16,7 +20,7 @@
     ]
   },
   "keywords": [],
-  "author": "",
+  "author": "Terkihacks",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {

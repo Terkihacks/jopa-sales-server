@@ -5,10 +5,9 @@ const router = express.Router();
 // Create a product
 router.post('/create-product', async (req, res) => {
   const { name, code, category, price } = req.body;
-
   try {
     const product = await prisma.product.create({
-      data: { name, code, category, price },
+    data: { name, code, category, price },
     });
     res.status(201).json(product);
   } catch (error) {
@@ -18,7 +17,7 @@ router.post('/create-product', async (req, res) => {
 });
 
 
-// Get all products
+// Get all products with sales
 router.get('/get-products', async (req, res) => {
   try {
     const products = await prisma.product.findMany({

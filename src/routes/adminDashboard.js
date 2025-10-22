@@ -19,7 +19,7 @@ router.get('/admin-dashboard', async (req, res) => {
       prisma.product.count(),
     ]);
 
-    // 2️⃣ Fetch recent sales (limit 5)
+    // Fetch recent sales (limit 5)
     const recentSales = await prisma.sale.findMany({
       take: 5,
       orderBy: { createdAt: 'desc' },
@@ -37,7 +37,7 @@ router.get('/admin-dashboard', async (req, res) => {
       time: dayjs(sale.createdAt).fromNow(),
     }));
 
-    // 3️⃣ Generate sales trend (last 7 days)
+    // Generate sales trend (last 7 days)
     const salesByDay = await prisma.sale.groupBy({
       by: ['createdAt'],
       _sum: { total: true, profit: true },
@@ -49,7 +49,7 @@ router.get('/admin-dashboard', async (req, res) => {
       profit: day._sum.profit ?? 0,
     }));
 
-    // 4️⃣ Send response
+    //  Send response
     res.status(200).json({
       success: true,
       stats: {

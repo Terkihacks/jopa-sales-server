@@ -139,46 +139,60 @@ router.post('/admin-login', async (req, res) => {
 });
 
 
-
-
 /* ===========================================
    LOGIN — Login a Record Keeper
    Endpoint: POST /record-keepers/login
    Access: Public
 =========================================== */
-router.post('/login', async (req, res) => {
+router.post('/record-keepers/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const recordKeeper = await prisma.recordKeeper.findUnique({ where: { email } });
+    // Check if record keeper exists
+    const recordK = await prisma.user.findUnique({
+      where: { email },
+    });
 
-    if (!recordKeeper) return res.status(404).json({ message: 'Record Keeper not found' });
+    if (!recordK) {
+      return res.status(404).json({ message: 'Record Keeper not found' });
+    }
 
-    const validPassword = bcrypt.compareSync(password, recordKeeper.password);
-    if (!validPassword)
-      return res.status(401).json({ message: 'Invalid credentials' });
+    // Ensure role is RECORD_KEEPER
+    if (recordK.role !== 'RECORD_KEEPER') {
+      return res.status(403).json({ message: 'Access denied. Not a record keeper.' });
+    }
 
+    // Verify password
+    const isPasswordValid = bcrypt.compareSync(password, recordK.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    //Generate JWT
     const token = jwt.sign(
-      { recordKeeperId: recordKeeper.id, role: recordKeeper.role },
+      { id: recordK.id, role: recordK.role },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
-
+    
+    console.log(token)
+    //Respond with token and profile info
     res.status(200).json({
-      message: 'Login successful',
+      message: 'Record Keeper login successful',
       token,
-      recordKeeper: {
-        id: recordKeeper.id,
-        name: recordKeeper.name,
-        email: recordKeeper.email,
-        role: recordKeeper.role,
+      recordK: {
+        id: recordK.id,
+        name: recordK.name,
+        email: recordK.email,
+        role: recordK.role,
       },
     });
   } catch (err) {
-    console.error(err.message);
-    res.sendStatus(503);
+    console.error('Record Keeper Login Error:', err.message);
+    res.status(503).json({ message: 'Internal server error' });
   }
 });
+
 
 /* ===========================================
    READ — Get all Record Keepers
