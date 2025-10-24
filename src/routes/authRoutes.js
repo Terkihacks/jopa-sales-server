@@ -12,79 +12,133 @@ const prisma = new PrismaClient();
    Endpoint: POST /record-keepers
    Access: Admin only
 =========================================== */
-router.post('/regiser-record-keeper', authenticateToken, authorizeRoles('ADMIN'), async (req, res) => {
-  const { name, email, password, role } = req.body;
+// router.post('/regiser-record-keeper', authenticateToken, authorizeRoles('ADMIN'), async (req, res) => {
+//   const { name, email, password, role } = req.body;
 
-  try {
-    const existingRecordKeeper = await prisma.recordKeeper.findUnique({
-      where: { email },
-    });
+//   try {
+//     const existingRecordKeeper = await prisma.recordKeeper.findUnique({
+//       where: { email },
+//     });
 
-    if (existingRecordKeeper) {
-      return res.status(400).json({ message: 'Record Keeper already exists' });
-    }
+//     if (existingRecordKeeper) {
+//       return res.status(400).json({ message: 'Record Keeper already exists' });
+//     }
 
-    const hashedPassword = bcrypt.hashSync(password, 10);
+//     const hashedPassword = bcrypt.hashSync(password, 10);
 
-    const recordKeeper = await prisma.recordKeeper.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        role: role || 'RECORD_KEEPER',
-      },
-    });
+//     const recordKeeper = await prisma.recordKeeper.create({
+//       data: {
+//         name,
+//         email,
+//         password: hashedPassword,
+//         role: role || 'RECORD_KEEPER',
+//       },
+//     });
 
-    res.status(201).json({
-      message: 'Record Keeper created successfully',
-      recordKeeper: {
-        id: recordKeeper.id,
-        name: recordKeeper.name,
-        email: recordKeeper.email,
-        role: recordKeeper.role,
-        createdAt: recordKeeper.createdAt,
-      },
-    });
-  } catch (err) {
-    console.error(err.message);
-    res.sendStatus(503);
-  }
-});
+//     res.status(201).json({
+//       message: 'Record Keeper created successfully',
+//       recordKeeper: {
+//         id: recordKeeper.id,
+//         name: recordKeeper.name,
+//         email: recordKeeper.email,
+//         role: recordKeeper.role,
+//         createdAt: recordKeeper.createdAt,
+//       },
+//     });
+//   } catch (err) {
+//     console.error(err.message);
+//     res.sendStatus(503);
+//   }
+// });
 
 /* ===========================================
     CREATE — Create an Admin (for initial setup)
   ===========================================
 */ 
-router.post('/create-admin', authenticateToken, authorizeRoles('ADMIN'), async (req, res) => {
-  const { name, email, password } = req.body;
+// router.post('/create-admin', authenticateToken, authorizeRoles('ADMIN'), async (req, res) => {
+//   const { name, email, password } = req.body;
 
-  try {
-    const hashedPassword = bcrypt.hashSync(password, 10);
+//   try {
+//     const hashedPassword = bcrypt.hashSync(password, 10);
 
-    const newAdmin = await prisma.recordKeeper.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        role: 'ADMIN',
-      },
-    });
+//     const newAdmin = await prisma.recordKeeper.create({
+//       data: {
+//         name,
+//         email,
+//         password: hashedPassword,
+//         role: 'ADMIN',
+//       },
+//     });
 
-    res.status(201).json({
-      message: 'Admin created successfully',
-      admin: {
-        id: newAdmin.id,
-        name: newAdmin.name,
-        email: newAdmin.email,
-        role: newAdmin.role,
-      },
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error creating admin' });
+//     res.status(201).json({
+//       message: 'Admin created successfully',
+//       admin: {
+//         id: newAdmin.id,
+//         name: newAdmin.name,
+//         email: newAdmin.email,
+//         role: newAdmin.role,
+//       },
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Error creating admin' });
+//   }
+// });
+
+/* ===========================================
+    CREATE — Register Admin or Record Keeper
+   =========================================== */
+router.post('/register-user',authenticateToken,authorizeRoles('ADMIN'),
+  async (req, res) => {
+    const { name, email, password, role } = req.body;
+
+    try {
+      // Validate required fields
+      if (!name || !email || !password) {
+        return res.status(400).json({ message: 'Name, email, and password are required' });
+      }
+
+      // Ensure role is valid
+      const validRoles = ['ADMIN', 'RECORD_KEEPER'];
+      const userRole = role && validRoles.includes(role.toUpperCase())
+        ? role.toUpperCase()
+        : 'RECORD_KEEPER'; 
+
+      // Check if user already exists
+      const existingUser = await prisma.user.findUnique({ where: { email } });
+      if (existingUser) {
+        return res.status(400).json({ message: 'User already exists with this email' });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create user (admin or record keeper)
+      const newUser = await prisma.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          role: userRole,
+        },
+      });
+
+      res.status(201).json({
+        message: `${userRole === 'ADMIN' ? 'Admin' : 'Record Keeper'} created successfully`,
+        user: {
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role,
+          createdAt: newUser.createdAt,
+        },
+      });
+    } catch (err) {
+      console.error('Error creating user:', err);
+      res.status(500).json({ message: 'Error creating user' });
+    }
   }
-});
-
+);
 
 /* ===========================================
    ADMIN LOGIN
@@ -142,7 +196,6 @@ router.post('/admin-login', async (req, res) => {
 /* ===========================================
    LOGIN — Login a Record Keeper
    Endpoint: POST /record-keepers/login
-   Access: Public
 =========================================== */
 router.post('/record-keepers/login', async (req, res) => {
   const { email, password } = req.body;

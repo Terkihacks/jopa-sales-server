@@ -32,6 +32,7 @@ http://localhost:4000/v1/api/admin-dashboard
 http://localhost:4000/v1/api/products/get-products
 http://localhost:4000/v1/api/auth/record-keepers/login
 http://localhost:4000/v1/api/auth/admin-login
+http://localhost:4000/v1/api/auth/register-user
 http://localhost:4000/v1/api/sales/create-sale
 http://localhost:4000/v1/api/sales/get-sales-by-user/
 http://localhost:4000/v1/api/sales/get-sales
