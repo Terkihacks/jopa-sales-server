@@ -109,10 +109,9 @@ router.post('/register-user',authenticateToken,authorizeRoles('ADMIN'),
       if (existingUser) {
         return res.status(400).json({ message: 'User already exists with this email' });
       }
-
+      
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
-
       // Create user (admin or record keeper)
       const newUser = await prisma.user.create({
         data: {
