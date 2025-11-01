@@ -1,26 +1,25 @@
 version: "3.9"
 
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: jopa-backend-api
-    restart: unless-stopped
-    ports:
-      - "4000:4000"
-    # depends_on:
-    #   - db
-    env_file:
-      - .env
-    environment:
-      NODE_ENV: development
-      PORT: 4000
-    networks:
-      - jopa-network
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+ app:
+  build:
+    context: .
+    dockerfile: Dockerfile
+  container_name: jopa-backend-api
+  restart: unless-stopped
+  ports:
+    - "4000:4000"
+  # depends_on:
+  #   - db
+  env_file:
+    - .env
+  environment:
+    NODE_ENV: development
+    PORT: 4000
+  network_mode: "host"
+  volumes:
+    - .:/usr/src/app
+    - /usr/src/app/node_modules
 
   # db:
   #   image: postgres:17-alpine
