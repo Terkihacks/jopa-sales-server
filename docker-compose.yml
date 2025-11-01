@@ -22,18 +22,18 @@ services:
       - .:/usr/src/app
       - /usr/src/app/node_modules
 
-  db:
-    image: postgres:17-alpine
-    container_name: jopadb
-    restart: unless-stopped
-    env_file:
-      - .env
-    ports:
-      - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    networks:
-      - jopa-network
+  # db:
+  #   image: postgres:17-alpine
+  #   container_name: jopadb
+  #   restart: unless-stopped
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - db_data:/var/lib/postgresql/data
+  #   networks:
+  #     - jopa-network
 
 volumes:
   db_data:
