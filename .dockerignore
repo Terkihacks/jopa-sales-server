@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+.env
+.DS_Store
+.git
+.gitignore
+.vscode
+dist
+coverage
+.nyc_output
+tests/
+README.md
+TODO.md
+.github/
+ecs-setup.md
+

@@ -20,6 +20,11 @@ app.use('/v1/api/reports', reportRoutes);
 app.use('/v1/api', adminDashboard);
 
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 // Server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
@@ -38,3 +43,4 @@ http://localhost:4000/v1/api/sales/get-sales-by-user/
 http://localhost:4000/v1/api/sales/get-sales
 http://localhost:4000/v1/api/users/get-users
 */
+
