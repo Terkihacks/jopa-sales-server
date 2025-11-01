@@ -1,4 +1,4 @@
-name: Deploy to Alibaba ECS 
+name: Deploy to Alibaba ECS
 
 on:
   push:
@@ -19,20 +19,14 @@ jobs:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
           key: ${{ secrets.ECS_SSH_KEY }}
-          port: 27 
+          port: 27
           script: |
-            # Navigate to app directory
+            echo "🚀 Starting deployment on ECS..."
             cd /root/jopa-sales-server
-
-            # Pull latest code
             git pull origin main
-
-            # Rebuild and restart containers
+            docker system prune -af
             docker-compose down
             docker-compose build --no-cache
             docker-compose up -d
-
-            # Run Prisma migrations
             docker exec jopa-backend-api npx prisma migrate deploy
-
-            echo "Deployment complete"
+            echo "✅ Deployment complete!"
