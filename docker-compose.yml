@@ -7,8 +7,8 @@ services:
     dockerfile: Dockerfile
   container_name: jopa-backend-api
   restart: unless-stopped
-  ports:
-    - "4000:4000"
+  # ports:
+  #   - "4000:4000"
   # depends_on:
   #   - db
   env_file:
