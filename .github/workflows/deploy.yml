@@ -41,8 +41,9 @@ jobs:
             echo "⏳ Waiting for app to be ready..."
             sleep 10
 
+
             echo "📦 Running Prisma migrations..."
-            docker-compose exec app npx prisma migrate deploy
+            docker-compose exec -T app npx prisma migrate deploy
 
             echo "✅ Containers running:"
             docker ps
