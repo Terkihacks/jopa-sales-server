@@ -23,12 +23,28 @@ jobs:
           script: |
             set -e
             echo "🚀 Starting deployment on ECS..."
-            cd /root/jopa-sales-server || { echo "Directory not found"; exit 1; }
+            cd /root/jopa-sales-server
+
+            echo "📥 Pulling latest code..."
             git fetch origin main
             git reset --hard origin/main
+
+            echo "🛑 Stopping old containers..."
             docker-compose down --remove-orphans
+
+            echo "🏗️ Building containers..."
             docker-compose build --no-cache
+
+            echo "▶️ Starting containers..."
             docker-compose up -d
-            docker-compose run --rm jopa-backend-api npx prisma migrate deploy
+
+            echo "⏳ Waiting for app to be ready..."
+            sleep 10
+
+            echo "📦 Running Prisma migrations..."
+            docker-compose exec app npx prisma migrate deploy
+
+            echo "✅ Containers running:"
             docker ps
+
             echo "🎉 Deployment complete!"
