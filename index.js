@@ -10,7 +10,14 @@ const authRoutes = require('./src/routes/authRoutes.js');
 const userRoutes = require('./src/routes/userRoute.js');
 
 const app = express();
-app.use(cors());
+app.use(cors(
+  {
+    origin: ["https://jopa-sales-hub.vercel.app"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  }
+));
 app.use(express.json());
 app.use('/v1/api/products', productRoutes);
 app.use('/v1/api/auth', authRoutes);
@@ -40,7 +47,6 @@ http://localhost:4000/v1/api/products/get-products
 http://localhost:4000/v1/api/auth/record-keepers/login
 http://localhost:4000/v1/api/auth/admin-login
 https://jopasales.alxtexh.top/v1/api/auth/admin-login
-
 http://localhost:4000/v1/api/auth/register-user
 http://localhost:4000/v1/api/sales/create-sale
 http://localhost:4000/v1/api/sales/get-sales-by-user/

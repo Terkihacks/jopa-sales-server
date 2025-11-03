@@ -30,6 +30,7 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/jopa-sales:latest .
 
+
       # Step 5: Push image to Docker Hub
       - name: Push Docker image 
         run: |
@@ -49,3 +50,6 @@ jobs:
             docker stop jopa-sales || true
             docker rm jopa-sales || true
             docker run -d --name jopa-sales -p 8080:4000 ${{ secrets.DOCKERHUB_USERNAME }}/jopa-sales:latest
+
+            
+
