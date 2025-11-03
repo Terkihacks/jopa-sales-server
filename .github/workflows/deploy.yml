@@ -42,8 +42,9 @@ jobs:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
           key: ${{ secrets.ECS_SSH_KEY }}
+          port: 27
           script: |
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/jopa-sales:latest
             # docker stop jopa-sales || true
             # docker rm jopa-sales || true
-            docker run -d --name jopa-sales -p 4000:4000 ${{ secrets.DOCKERHUB_USERNAME }}/jopa-sales:latest
+            docker run -d --name jopa-sales -p 80:4000 ${{ secrets.DOCKERHUB_USERNAME }}/jopa-sales:latest
