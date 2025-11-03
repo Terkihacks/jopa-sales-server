@@ -34,4 +34,17 @@ jobs:
       - name: Push Docker image 
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/jopa-sales:latest
-          
+
+      #Step 6: Deploy to Alibaba ECS
+      # You can later extend this part to SSH into your ECS instance and pull the image.
+      - name: Deploy to ECS Instance
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USER }}
+          key: ${{ secrets.ECS_SSH_KEY }}
+          script: |
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/jopa-sales:latest
+            # docker stop jopa-sales || true
+            # docker rm jopa-sales || true
+            docker run -d --name jopa-sales -p 4000:4000 ${{ secrets.DOCKERHUB_USERNAME }}/jopa-sales:latest
