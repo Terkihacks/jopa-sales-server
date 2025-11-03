@@ -36,7 +36,6 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/jopa-sales:latest
 
       #Step 6: Deploy to Alibaba ECS
-      # You can later extend this part to SSH into your ECS instance and pull the image.
       - name: Deploy to ECS Instance
         uses: appleboy/ssh-action@v1.1.0
         with:
