@@ -44,6 +44,7 @@ jobs:
           key: ${{ secrets.ECS_SSH_KEY }}
           port: 27
           script: |
+            docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/jopa-sales:latest
             # docker stop jopa-sales || true
             # docker rm jopa-sales || true
