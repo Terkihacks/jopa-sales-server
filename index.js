@@ -28,9 +28,9 @@ app.use('/v1/api', adminDashboard);
 
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
-});
+// app.get('/health', (req, res) => {
+//   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+// });
 
 // Server
 const PORT = process.env.PORT || 8080;
