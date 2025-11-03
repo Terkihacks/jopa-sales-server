@@ -51,7 +51,8 @@ jobs:
             docker stop jopa-sales || true
             docker rm jopa-sales || true
             # docker run -d --name jopa-sales -p 8080:4000  ${{ secrets.DOCKERHUB_USERNAME }}/jopa-sales:latest
-            docker run -d --name jopa-sales -p 8080:8080  --e JWT_SECRET="${{ secrets.JWT_SECRET }}" --add-host=host.docker.internal:host-gateway -e DATABASE_URL="${{ secrets.DATABASE_URL }}" "${{ secrets.DOCKERHUB_USERNAME }}/jopa-sales:latest"
+            # docker run -d --name jopa-sales -p 8080:8080  -e JWT_SECRET="${{ secrets.JWT_SECRET }}" --add-host=host.docker.internal:host-gateway -e DATABASE_URL="${{ secrets.DATABASE_URL }}" "${{ secrets.DOCKERHUB_USERNAME }}/jopa-sales:latest"
+            docker run -d --name jopa-sales -p 8080:8080 -e JWT_SECRET="${{ secrets.JWT_SECRET }}" -e DATABASE_URL="${{ secrets.DATABASE_URL }}" --add-host=host.docker.internal:host-gateway "${{ secrets.DOCKERHUB_USERNAME }}/jopa-sales:latest"
 
 
 
