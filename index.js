@@ -11,12 +11,12 @@ const userRoutes = require('./src/routes/userRoute.js');
 
 const app = express();
 app.use(cors(
-  {
-    origin: ["https://jopa-sales-hub.vercel.app"],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  }
+  // {
+  //   origin: ["https://jopa-sales-hub.vercel.app"],
+  //   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  //   allowedHeaders: ["Content-Type", "Authorization"],
+  //   credentials: true,
+  // }
 ));
 app.use(express.json());
 app.use('/v1/api/products', productRoutes);
@@ -28,9 +28,9 @@ app.use('/v1/api', adminDashboard);
 
 
 // Health check endpoint
-// app.get('/health', (req, res) => {
-//   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
-// });
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
 
 // Server
 const PORT = process.env.PORT || 8080;
