@@ -3,12 +3,12 @@ const prisma = new PrismaClient();
 
 async function testConnection() {
     try {
-        console.log('🔗 Testing database connection...');
+        console.log('Testing database connection...');
         const result = await prisma.$queryRaw`SELECT 1`;
-        console.log('✅ Database connection successful!');
+        console.log(' Database connection successful!');
         return true;
     } catch (error) {
-        console.error('❌ Database connection failed:', error);
+        console.error(' Database connection failed:', error);
         return false;
     } finally {
         await prisma.$disconnect();

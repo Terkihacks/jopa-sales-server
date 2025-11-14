@@ -4,74 +4,83 @@ const router = express.Router();
 
 
 // Generate a new report (daily, weekly, or custom)
-router.post('/generate', async (req, res) => {
-  const { reportType, startDate, endDate, userId } = req.body;
+// router.post('/generate', async (req, res) => {
+//   const { reportType, startDate, endDate, userId } = req.body;
 
-  try {
-    // Validate required fields
-    if (!reportType || !userId) {
-      return res.status(400).json({ error: 'reportType and userId are required' });
-    }
+//   try {
+//     // Validate required fields
+//     if (!reportType || !userId) {
+//       return res.status(400).json({ error: 'reportType and userId are required' });
+//     }
 
-    // Determine date range
-    const start = startDate ? new Date(startDate) : new Date();
-    const end = endDate ? new Date(endDate) : new Date();
+//     // Determine date range
+//     const start = startDate ? new Date(startDate) : new Date();
+//     const end = endDate ? new Date(endDate) : new Date();
 
-    // Get all sales within range
-    const sales = await prisma.sale.findMany({
-      where: { createdAt: { gte: start, lte: end } }
-    });
+//     // Get all sales within range
+//     const sales = await prisma.sale.findMany({
+//       where: { createdAt: { gte: start, lte: end } }
+//     });
 
-    if (!sales.length) {
-      return res.status(404).json({ message: 'No sales found for this period' });
-    }
+//     if (!sales.length) {
+//       return res.status(404).json({ message: 'No sales found for this period' });
+//     }
 
-    // Compute totals
-    const totalSales = sales.reduce((sum, s) => sum + s.total, 0);
-    const totalProfit = sales.reduce((sum, s) => sum + s.profit, 0);
+//     // Compute totals
+//     const totalSales = sales.reduce((sum, s) => sum + s.total, 0);
+//     const totalProfit = sales.reduce((sum, s) => sum + s.profit, 0);
 
-    // Create a new report
-    const newReport = await prisma.report.create({
-      data: {
-        title: `${reportType.charAt(0).toUpperCase() + reportType.slice(1)} Report - ${new Date().toLocaleDateString()}`,
-        reportType,
-        totalSales,
-        totalProfit,
-        startDate: start,
-        endDate: end,
-        userId,
-        salesIncluded: {
-          connect: sales.map(s => ({ id: s.id }))
-        }
-      },
-      include: { salesIncluded: true, createdBy: true }
-    });
+//     // Create a new report
+//     const newReport = await prisma.report.create({
+//       data: {
+//         title: `${reportType.charAt(0).toUpperCase() + reportType.slice(1)} Report - ${new Date().toLocaleDateString()}`,
+//         reportType,
+//         totalSales,
+//         totalProfit,
+//         startDate: start,
+//         endDate: end,
+//         userId,
+//         salesIncluded: {
+//           connect: sales.map(s => ({ id: s.id }))
+//         }
+//       },
+//       include: { salesIncluded: true, createdBy: true }
+//     });
 
-    res.status(201).json({
-      message: 'Report generated successfully',
-      report: newReport
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: 'Failed to generate report' });
-  }
-});
-
+//     res.status(201).json({
+//       message: 'Report generated successfully',
+//       report: newReport
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ error: 'Failed to generate report' });
+//   }
+// });
 
 // Get all reports
-router.get('/', async (req, res) => {
+router.get('/getreports', async (req, res) => {
   try {
     const reports = await prisma.report.findMany({
-      orderBy: { generatedAt: 'desc' },
-      include: { createdBy: true }
+      orderBy: { createdAt: 'desc' },
+      include: {
+        generatedBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            createdAt: true
+          }
+        }
+      }
     });
-    res.status(200).json(reports);
+
+    res.json({ success: true, data: reports });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: 'Failed to fetch reports' });
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Failed to fetch reports' });
   }
 });
-
 
 //  Get single report by ID
 router.get('/:id', async (req, res) => {

@@ -1,6 +1,7 @@
 const express = require('express');
 // const prisma = require('./src/prismaClient');
 const cors = require('cors');
+const scheduleDailyReport = require('./src/jobs/reportJob.js');
 
 const productRoutes = require('./src/routes/productRoutes');
 const salesRoutes = require('./src/routes/salesRoutes');
@@ -19,6 +20,7 @@ app.use(cors(
   // }
 ));
 app.use(express.json());
+
 app.use('/v1/api/products', productRoutes);
 app.use('/v1/api/auth', authRoutes);
 app.use('/v1/api/sales', salesRoutes);
@@ -27,10 +29,17 @@ app.use('/v1/api/reports', reportRoutes);
 app.use('/v1/api', adminDashboard);
 
 
+app.get('/', (req, res) => {
+  res.send('Server is running and cron jobs are active 🚀');
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
+
+// Start cron job
+scheduleDailyReport();
 
 // Server
 const PORT = process.env.PORT || 8080;
@@ -40,6 +49,7 @@ app.listen(PORT, () => {
   require('./src/config/config.js');
 });
 /* 
+http://localhost:4000/v1/api/reports/getreports
 curl.exe -I http://jopasales.alxtexh.top/v1/api/admin-dashboard
 https://jopasales.alxtexh.top/v1/api/admin-dashboard
 http://localhost:4000/v1/api/admin-dashboard
